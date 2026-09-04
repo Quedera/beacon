@@ -12,13 +12,21 @@
 # scaffolds are running simultaneously, this matters. Add new products
 # to the table below and pick a port that doesn't collide.
 #
-# ┌──────────┬────────┐
-# │ Product  │ Port   │
-# ├──────────┼────────┤
-# │ BEACON   │ 3030   │
-# │ DUET     │ 8000   │  (Vite default; pending migration)
-# │ WEKAN    │ 8090   │  (Docker; not in this Caddyfile)
-# └──────────┴────────┘
+# All 5 QUEDERA products get a slot. Routes for products not yet active
+# are commented out below — uncomment when the product is ready for dev.
+#
+# ┌──────────┬────────┬─────────────┬───────────────────────────┐
+# │ Product  │ Port   │ Stack       │ Scaffold path             │
+# ├──────────┼────────┼─────────────┼───────────────────────────┤
+# │ BEACON   │ 3030   │ Next.js 14  │ quedera-beacon/           │
+# │ DUET     │ 8000   │ Vite        │ service-transition-duo/   │
+# │ PULSE    │ 3040   │ Next.js 14  │ quedera-pulse/            │
+# │ ATLAS    │ 3050   │ Next.js 14  │ quedera-atlas/            │
+# │ SENTINEL │ 3060   │ Next.js 14  │ sentinel/                 │
+# └──────────┴────────┴─────────────┴───────────────────────────┘
+#
+# (CMMI apps previously ran on :3000 / :3001 — phased out 2026-09-04,
+# replaced by PULSE.)
 #
 # Install:   sudo cp infra/Caddyfile /etc/caddy/Caddyfile
 # Restart:   sudo systemctl restart caddy
@@ -37,13 +45,35 @@
     }
 
     # ── DUET ──────────────────────────────────────────────────────────────
-    # Vite dev server (port 8000). DEFERRED — see infra/README.md.
+    # Vite dev server. Service-transition-duo/frontend on port 8000.
+    # To enable: configure Vite `base: "/duet/"` in
+    # service-transition-duo/frontend/vite.config.js, restart the dev
+    # server, then uncomment the block below.
     # handle /duet/* {
     #     reverse_proxy localhost:8000
     # }
-    # To enable: configure Vite `base: "/duet/"` in
-    # service-transition-duo/frontend/vite.config.js, restart the dev
-    # server, then uncomment the block above.
+
+    # ── PULSE ──────────────────────────────────────────────────────────────
+    # Next.js scaffold at quedera-pulse/. Replaces the retired CMMI apps.
+    # Set basePath: "/pulse" in quedera-pulse/next.config.js and use
+    # `next dev -p 3040` in package.json. Uncomment when PULSE dev starts.
+    # handle /pulse/* {
+    #     reverse_proxy localhost:3040
+    # }
+
+    # ── ATLAS ──────────────────────────────────────────────────────────────
+    # Next.js scaffold at quedera-atlas/. Same pattern as PULSE.
+    # handle /atlas/* {
+    #     reverse_proxy localhost:3050
+    # }
+
+    # ── SENTINEL ───────────────────────────────────────────────────────────
+    # Next.js scaffold at sentinel/. SENTINEL is a separate QUEDERA product
+    # family (per brand kit, NOT part of the BEACON hub catalogue per PRD §1)
+    # but it still needs a dev route. Same pattern.
+    # handle /sentinel/* {
+    #     reverse_proxy localhost:3060
+    # }
 
     # ── Root landing ───────────────────────────────────────────────────────
     handle / {
