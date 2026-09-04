@@ -14,17 +14,20 @@ Agreed with Craig in #beacon on 2026-09-04.
 | **Apps** | Each Next.js app sets `basePath: "/{slug}"` in `next.config.js`. Each Vite app sets `base: "/{slug}/"` in `vite.config.js`. |
 | **Dev port** | Explicit per product (table below). No lottery on the Next.js fallback chain. |
 
-## All 5 QUEDERA products
+## All QUEDERA products + CORE
 
 | Product | Port | Stack | Scaffold | Status | Route |
 |---|---|---|---|---|---|
 | **BEACON** | 3030 | Next.js 14 | `quedera-beacon/` | ✅ live — Phase 1 built, basePath set | `/beacon` |
+| **CORE** | 4000 | Next.js 14 + Prisma + SQLite | `core/` | ✅ live — Tier 1 ISMS scaffold (mock data); basePath not yet set | `/core` |
 | **DUET** | 8000 | Vite (frontend) + Node/Express (backend) | `service-transition-duo/` | 🟡 active, migration deferred — Craig's timing call | `/duet` |
 | **PULSE** | 3040 | Next.js 14 | `quedera-pulse/` | ⚪ not started — pre-brief scaffold exists | `/pulse` |
 | **ATLAS** | 3050 | Next.js 14 | `quedera-atlas/` | ⚪ not started — pre-brief scaffold exists, design-only per slide | `/atlas` |
 | **SENTINEL** | 3060 | Next.js 14 | `sentinel/` | ⏸ paused — Tier 1 scaffold shipped 2026-08-16 | `/sentinel` |
 
 SENTINEL is a separate QUEDERA product family per the brand kit (not part of the BEACON hub catalogue per PRD §1), but it still needs a dev route on the same gateway — so it gets a slot here too.
+
+**CORE** is QUEDERA's ISMS (Information Security Management System) — different product family from the 5 customer-facing QUEDERA products. Tier 1 scaffold already shipped; Tier 2 wires Postgres + WorkOS + real AI adapters.
 
 **CMMI apps phased out 2026-09-04** — previously held :3000 and :3001. Replaced by PULSE.
 

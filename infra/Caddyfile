@@ -19,6 +19,7 @@
 # │ Product  │ Port   │ Stack       │ Scaffold path             │
 # ├──────────┼────────┼─────────────┼───────────────────────────┤
 # │ BEACON   │ 3030   │ Next.js 14  │ quedera-beacon/           │
+# │ CORE     │ 4000   │ Next.js 14  │ core/                     │
 # │ DUET     │ 8000   │ Vite        │ service-transition-duo/   │
 # │ PULSE    │ 3040   │ Next.js 14  │ quedera-pulse/            │
 # │ ATLAS    │ 3050   │ Next.js 14  │ quedera-atlas/            │
@@ -78,6 +79,17 @@
     #     reverse_proxy localhost:3060
     # }
 
+    # ── CORE ──────────────────────────────────────────────────────────────────────
+    # QUEDERA's ISMS (Information Security Management System). Tier 1 scaffold
+    # (Next.js 14 + Prisma + SQLite, mock data). Different brand (CORE Pink +
+    # QUEDERA Navy) but same dev gateway pattern. Currently on :4000.
+    # Note: Core doesn't yet have basePath configured, so internal links may
+    # not include /core prefix; the gateway proxy works but in-app navigation
+    # may need a follow-up basePath config (same pattern as BEACON).
+    handle /core* {
+        reverse_proxy localhost:4000
+    }
+
     # ── Root landing ───────────────────────────────────────────────────────
     handle / {
         respond `<!doctype html>
@@ -101,7 +113,11 @@
   <p>Path-based gateway. Each product lives at <code>/{slug}</code>.</p>
   <ul>
     <li><a href="/beacon">/beacon</a> <span class="badge">Phase 1 · mock data</span></li>
+    <li><a href="/core">/core</a> <span class="badge">Tier 1 · ISMS scaffold</span></li>
     <li><span class="muted">/duet — pending migration (Vite base config + restart)</span></li>
+    <li><span class="muted">/pulse — scaffold only, not yet routed</span></li>
+    <li><span class="muted">/atlas — design-only per slide v0.1</span></li>
+    <li><span class="muted">/sentinel — paused (separate product family)</span></li>
     <li><span class="muted">/wekan — not migrated (separate Docker stack)</span></li>
   </ul>
   <p class="muted" style="margin-top: 40px; font-size: 12px;">
