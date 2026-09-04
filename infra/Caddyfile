@@ -87,7 +87,7 @@
     # not include /core prefix; the gateway proxy works but in-app navigation
     # may need a follow-up basePath config (same pattern as BEACON).
     handle /core* {
-        reverse_proxy localhost:4000
+        reverse_proxy localhost:4040
     }
 
     # ── Root landing ───────────────────────────────────────────────────────
