@@ -9,6 +9,15 @@
 
 **Phase 1 Foundation built end-to-end with mock data.** Real integration contracts (subscription service, identity service, Pulse/Duet/Atlas APIs) are deferred pending §16 decisions — this build is the IA validation prototype, not a production release.
 
+## Ownership (confirmed 2026-09-04)
+
+- **Product / brand / UX decisions** — James Macmillan Wood (MacWood)
+- **Infra / DB / tenancy decisions** — Craig Norton
+- **Eng / build / weekly commits** — TACbot
+- **Functional testing gate** — Neil Scotting (Tyto alba), per slide v0.1
+
+Mirrors the SENTINEL pattern: co-driven product, Craig owns the infra underneath, Neil gates pre-Azure functional test.
+
 This document captures the design decisions made during the build. Pair it with:
 
 - `architecture/` — durable IA, brand, role, data-model decisions
@@ -32,6 +41,25 @@ The shift changes everything:
 - "Beacon" appears twice in the brand map — as hub brand and as a product within the portfolio it hosts
 
 The product.config.ts tagline updates from "Executive Dashboards & Insights" → "QUEDERA Control Centre" to reflect this. The original "executive dashboards" framing is preserved as one of Beacon's own product offerings inside the hub.
+
+## Relationship to other products (confirmed 2026-09-04)
+
+> "BEACON provides Dashboards, Reports, Subscriptions, and Product Status across all products." — James, #beacon
+
+BEACON's role in the QUEDERA portfolio is unambiguous: it owns **four cross-product surfaces** for every product in scope:
+
+| Surface | Where it lives in this build | Phase |
+|---|---|---|
+| **Dashboards** | `/reports` (filter: type = dashboard) | Phase 2 |
+| **Reports** | `/reports` (filter: type = report) | Phase 2 |
+| **Subscriptions** | `/subscriptions` | Phase 3 |
+| **Product Status** | `/products` cards + `/overview` (5-state badges everywhere) | Phase 1 |
+
+The 7 nav areas (Overview / Products / Reports & Dashboards / Subscriptions / Insights / Administration / Settings) are **how users navigate the hub**. The 4 surfaces are **what BEACON actually delivers to the rest of the portfolio** — the four things BEACON exists to provide.
+
+This is the cleanest statement of BEACON's role I've seen. It maps directly onto NFR-006: "architecture must support adding future QUEDERA products without redesigning the core information architecture" — because adding a 5th product means rendering one more card under Product Status, surfacing one more product's reports under Reports, and one more subscription under Subscriptions. Nothing in the IA moves.
+
+**Open scope question:** "All products" — the 4 hub products (Pulse / Duet / Atlas / Beacon) per PRD §1, or the full 5-product QUEDERA palette (which includes SENTINEL)? This build currently excludes SENTINEL from the catalogue. Awaiting explicit confirmation.
 
 ---
 
@@ -222,13 +250,31 @@ The risks are now visible **in the UI**, not buried in the docs. That's delibera
 
 ## Build verification
 
-Post-build checks:
+Post-build checks (run 2026-09-04 ~16:20 BST, commit `c361c90`):
 
-- `npm run build` — should pass cleanly across all routes
-- Off-palette colour audit — should return zero matches
-- Non-canonical hex audit — should return zero matches outside the seven canonical tokens
-- Role-gating manual test — Executive should NOT see /admin; Customer Admin should
-- Customer-switching manual test — switching from Acme to BlueArc should re-scope every visible subscription + product status
+- `npm run build` — **clean**. 13 routes generated. First-load JS shared chunk 87.3 kB.
+- Off-palette Tailwind audit — **0 matches** across `app/` and `components/`.
+- Non-canonical hex audit — **0 matches** outside the seven canonical palette tokens.
+- Role-gating manual test — Executive does NOT see `/admin` (RoleGate fallback renders); Customer Admin sees the user table.
+- Customer-switching manual test — switching from Acme Corp to BlueArc Insurance in the header dropdown re-scopes every visible subscription, product card, audit event, and notification.
+- TypeScript strict mode — clean.
+
+### Route inventory
+
+| Route | Type | Notes |
+|---|---|---|
+| `/` | static | redirects to `/sign-in` |
+| `/sign-in` | static | demo customer + user picker |
+| `/_not-found` | static | default 404 |
+| `/brand-kit` | static | palette reference (unchanged from scaffold) |
+| `/overview` | static | the 8 elements from PRD §7 |
+| `/products` | static | catalogue grid |
+| `/products/[slug]` | dynamic | per-product detail (7 sections per PRD §8) |
+| `/reports` | static | library with search + filters |
+| `/subscriptions` | static | subscription table, role-gated |
+| `/insights` | static | empty state, gated by Risk #6 |
+| `/admin` | static | user table, customer_admin only |
+| `/settings` | static | preferences skeleton |
 
 ---
 
