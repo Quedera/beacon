@@ -1,26 +1,39 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { PRODUCT_CONFIG } from "@/product.config";
+import { CustomerProvider } from "@/lib/customer-context";
+import { CUSTOMERS, USERS } from "@/lib/mock-data";
 
 export const metadata: Metadata = {
-  title: "QUEDERA Product — Brand-locked scaffold template",
+  title: "QUEDERA Beacon — The QUEDERA Control Centre",
   description:
-    "Scaffold template for any QUEDERA product. Fork this repo and edit product.config.ts to specialise.",
+    "Central customer-facing hub for the QUEDERA portfolio. Discover products, manage subscriptions, access reporting.",
 };
 
+/**
+ * Root layout — wraps every route in the CustomerProvider so both the
+ * authenticated shell and the sign-in picker can read/write the active
+ * session.
+ *
+ * The CustomerProvider hydrates from localStorage on the client, but the
+ * initial render uses a sensible default (Acme + Craig) so SSR has data.
+ */
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const initialCustomer = CUSTOMERS[0];
+  const initialUser =
+    USERS.find((u) => u.customerId === initialCustomer.id) ?? USERS[0];
+
   return (
     <html lang="en">
       <body>
-        <Header product={PRODUCT_CONFIG.name} />
-        <main className="min-h-[calc(100vh-160px)]">{children}</main>
-        <Footer />
+        <CustomerProvider
+          initial={{ customerId: initialCustomer.id, userId: initialUser.id }}
+        >
+          {children}
+        </CustomerProvider>
       </body>
     </html>
   );
