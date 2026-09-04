@@ -82,7 +82,7 @@ echo "--- Caddy root (landing) ---"
 curl -sI http://quedera.local/ | head -3 || echo "FAILED"
 
 echo ""
-echo "--- BEACON /beacon (redirect to overview) ---"
+echo "--- BEACON /beacon (expect 307 redirect to /beacon/sign-in) ---"
 curl -sI http://quedera.local/beacon | head -3 || echo "FAILED"
 
 echo ""
