@@ -40,7 +40,10 @@
     # proxy matches) AND with explicit port 3030 in package.json
     # (`"dev": "next dev -p 3030"`) so we never collide with whatever
     # else is squatting on the Next.js default fallback chain.
-    handle /beacon/* {
+    # Matcher is `/beacon*` (no slash before the *) so bare /beacon works
+    # too. Next.js with basePath "/beacon" issues a 307 redirect from
+    # /beacon to /beacon/sign-in; /beacon/* would miss the bare URL.
+    handle /beacon* {
         reverse_proxy localhost:3030
     }
 
