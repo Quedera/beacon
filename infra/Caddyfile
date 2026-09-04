@@ -1,0 +1,71 @@
+# Caddy reverse proxy — QUEDERA dev environment on the miniPC
+#
+# Standard agreed 2026-09-04 (Craig + TACbot, in #beacon):
+#   - Path-based routing on :80
+#   - Hostname `quedera.local` (added to /etc/hosts by setup.sh)
+#   - One path per product: `/{product}/*`
+#   - Naming convention `quedera-{product}-{env}` applies to resource names
+#     (RGs, App Services, secrets) — not URLs. URL path = product slug.
+#
+# Install:   sudo cp infra/Caddyfile /etc/caddy/Caddyfile
+# Restart:   sudo systemctl restart caddy
+# Verify:    curl -sI http://quedera.local/beacon/overview
+
+:80 {
+
+    # ── BEACON ─────────────────────────────────────────────────────────────
+    # Next.js dev server (port 3000). Configured with basePath: "/beacon"
+    # in next.config.js so internal Links generate /beacon/* paths that
+    # this proxy will route correctly.
+    handle /beacon/* {
+        reverse_proxy localhost:3000
+    }
+
+    # ── DUET ──────────────────────────────────────────────────────────────
+    # Vite dev server (port 8000). DEFERRED — see infra/README.md.
+    # handle /duet/* {
+    #     reverse_proxy localhost:8000
+    # }
+    # To enable: configure Vite `base: "/duet/"` in
+    # service-transition-duo/frontend/vite.config.js, restart the dev
+    # server, then uncomment the block above.
+
+    # ── Root landing ───────────────────────────────────────────────────────
+    handle / {
+        respond `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>QUEDERA — Dev</title>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; max-width: 720px; margin: 80px auto; padding: 0 24px; color: #0D182A; background: #F2F4F7; }
+    h1 { letter-spacing: 0.05em; }
+    ul { line-height: 2; padding-left: 24px; }
+    a { color: #0D182A; text-decoration: none; border-bottom: 1px solid #10B981; padding: 2px 0; }
+    a:hover { background: #10B981; }
+    .badge { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: #F59E0B; margin-left: 8px; }
+    .muted { color: #6B7280; }
+    code { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 12px; background: #fff; padding: 2px 6px; border-radius: 3px; border: 1px solid #E5E7EB; }
+  </style>
+</head>
+<body>
+  <h1>QUEDERA — Dev</h1>
+  <p>Path-based gateway. Each product lives at <code>/{slug}</code>.</p>
+  <ul>
+    <li><a href="/beacon">/beacon</a> <span class="badge">Phase 1 · mock data</span></li>
+    <li><span class="muted">/duet — pending migration (Vite base config + restart)</span></li>
+    <li><span class="muted">/wekan — not migrated (separate Docker stack)</span></li>
+  </ul>
+  <p class="muted" style="margin-top: 40px; font-size: 12px;">
+    Path-based routing agreed 2026-09-04 in #beacon. Naming convention
+    <code>quedera-{product}-{env}</code> applies to Azure resource names.
+  </p>
+</body>
+</html>` 200
+    }
+
+    # ── Default ────────────────────────────────────────────────────────────
+    handle {
+        respond "Not found — try /beacon or one of the listed paths." 404
+    }
+}
