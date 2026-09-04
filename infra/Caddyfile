@@ -7,6 +7,19 @@
 #   - Naming convention `quedera-{product}-{env}` applies to resource names
 #     (RGs, App Services, secrets) — not URLs. URL path = product slug.
 #
+# Port assignment — explicit per product so apps don't fight for the
+# Next.js default fallback chain (3000 → 3001 → 3002…). When multiple
+# scaffolds are running simultaneously, this matters. Add new products
+# to the table below and pick a port that doesn't collide.
+#
+# ┌──────────┬────────┐
+# │ Product  │ Port   │
+# ├──────────┼────────┤
+# │ BEACON   │ 3030   │
+# │ DUET     │ 8000   │  (Vite default; pending migration)
+# │ WEKAN    │ 8090   │  (Docker; not in this Caddyfile)
+# └──────────┴────────┘
+#
 # Install:   sudo cp infra/Caddyfile /etc/caddy/Caddyfile
 # Restart:   sudo systemctl restart caddy
 # Verify:    curl -sI http://quedera.local/beacon/overview
@@ -14,11 +27,13 @@
 :80 {
 
     # ── BEACON ─────────────────────────────────────────────────────────────
-    # Next.js dev server (port 3000). Configured with basePath: "/beacon"
-    # in next.config.js so internal Links generate /beacon/* paths that
-    # this proxy will route correctly.
+    # Next.js dev server. Configured with basePath: "/beacon" in
+    # next.config.js (so internal Links generate /beacon/* paths that this
+    # proxy matches) AND with explicit port 3030 in package.json
+    # (`"dev": "next dev -p 3030"`) so we never collide with whatever
+    # else is squatting on the Next.js default fallback chain.
     handle /beacon/* {
-        reverse_proxy localhost:3000
+        reverse_proxy localhost:3030
     }
 
     # ── DUET ──────────────────────────────────────────────────────────────

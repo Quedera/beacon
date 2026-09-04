@@ -21,9 +21,11 @@ a 3-line Caddyfile change instead of a DNS dance.
 
 | Path | Status | Backed by |
 |---|---|---|
-| `/beacon` | ✅ Live | BEACON Next.js dev server, port 3000, `basePath: "/beacon"` |
+| `/beacon` | ✅ Live | BEACON Next.js dev server, port 3030, `basePath: "/beacon"` |
 | `/duet` | ⏸ Deferred | Vite dev server (port 8000) running but not yet routed — see *DUET migration* below |
 | `/wekan` | ⏸ Deferred | Docker stack on port 8090 — separate project, not in scope for this PR |
+
+**Why port 3030, not 3000?** The miniPC runs multiple Next.js scaffolds simultaneously (CMMI v2/v4, quedera-scaffold-template). Letting Next.js auto-pick the next free port via its fallback chain is fragile — it landed BEACON on :3002 the first time and Caddy was still pointing at :3000. Explicit port per product removes the lottery. The table is in `infra/Caddyfile`; add new products to both.
 
 ## One-time setup
 

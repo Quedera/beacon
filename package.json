@@ -4,7 +4,7 @@
   "private": true,
   "description": "Brand-locked scaffold template for any QUEDERA product. Fork this repo and rename 'PRODUCT' to PULSE / ATLAS / BEACON / DUET / SENTINEL / etc.",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3030",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
